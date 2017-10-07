@@ -1,4 +1,5 @@
 {
+  "name": "mradhi/youtube-dl",
   "autoload": {
     "psr-4": {
       "Mate\\Youtube\\": "src/"
