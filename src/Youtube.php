@@ -63,7 +63,7 @@ class Youtube
     private function generateCommand(): string
     {
         $parameters = $this->options['parameters'];
-        $url        = Helper::ExtractID($this->options['url']);
+        $url        = Helper::buildURL($this->options['url']);
 
         $parameters['output'] = $this->options['path'] . DIRECTORY_SEPARATOR . $this->options['filename'];
 
