@@ -11,7 +11,7 @@ $youtube = new Mate\Youtube\Youtube([
     'path'     => '/var/www/html/youtube-dl/mp3'
 ]);
 
-/** @var Mate\Youtube\Entity\Video $video **/
+/** @var Mate\Youtube\Entity\Video $video */
 $video = $youtube->download();
 
 echo $video->getFileSize();
