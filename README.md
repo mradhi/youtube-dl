@@ -6,9 +6,9 @@
 ```php
 
 $youtube = new Mate\Youtube\Youtube([
-    'url' => 'https://www.youtube.com/watch?v=HG713VfiXYAD',
+    'url'      => 'https://www.youtube.com/watch?v=HG713VfiXYAD',
     'filename' => 'test',
-    'path' => '/var/www/html/youtube-dl/mp3'
+    'path'     => '/var/www/html/youtube-dl/mp3'
 ]);
 
 /** @var Mate\Youtube\Entity\Video $video **/
