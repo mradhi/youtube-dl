@@ -3,14 +3,12 @@
 
 namespace Mate\Youtube;
 
-
 use Mate\Youtube\Parameter\AudioFormat;
 use Mate\Youtube\Parameter\AudioQuality;
 use Mate\Youtube\Parameter\ExtractAudio;
 use Mate\Youtube\Parameter\NoCallHome;
 use Mate\Youtube\Parameter\NoWarning;
 use Mate\Youtube\Parameter\Output;
-use Mate\Youtube\Parameter\Parameter;
 use Mate\Youtube\Parameter\PrintJson;
 use Mate\Youtube\Parameter\Quiet;
 
@@ -22,7 +20,7 @@ class Command
 
     protected $parameters = array();
 
-    public function __construct($name, $url, $parameters)
+    public function __construct( $name, $url, $parameters )
     {
         $this->name = $name;
         $this->url = $url;
@@ -31,28 +29,24 @@ class Command
 
     public function render(): string
     {
-        $commands = [$this->name];
+        $commands = [ $this->name ];
 
         foreach ($this->parameters as $key => $value) {
 
-            if (array_key_exists($key, self::availableParameters())) {
+            if ( array_key_exists($key, self::availableParameters()) ) {
                 $parameterClass = self::availableParameters()[ $key ];
 
-                if (is_bool($value)) {
-                    if (!$value) {
+                if ( is_bool($value) ) {
+                    if ( !$value ) {
                         continue;
                     }
 
-                    /** @var Parameter $parameter */
-                    $parameter = new $parameterClass();
-
-                    $commands[] = $parameter->render();
+                    $commands[] = ( new $parameterClass() )->render();
                     continue;
 
                 }
 
-                $parameter = new $parameterClass($value);
-                $commands[] = $parameter->render();
+                $commands[] = ( new $parameterClass($value) )->render();
             }
         }
 

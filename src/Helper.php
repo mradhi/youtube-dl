@@ -3,7 +3,6 @@
 
 namespace Mate\Youtube;
 
-
 use Symfony\Component\Process\Exception\LogicException;
 
 class Helper
