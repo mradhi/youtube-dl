@@ -9,6 +9,10 @@ class Video
 
     protected $title = null;
 
+    protected $filename = null;
+
+    protected $path = null;
+
     protected $categories = array();
 
     protected $dislikeCount = null;
@@ -27,12 +31,15 @@ class Video
 
     protected $thumbnail = null;
 
-    protected $data = null;
+    protected $data = array();
+
+    protected $options = array();
 
 
-    public function __construct(array $data = array())
+    public function __construct(array $data = array(), array $options = array())
     {
-        $this->data = $data;
+        $this->data    = $data;
+        $this->options = $options;
     }
 
     /**
@@ -121,5 +128,25 @@ class Video
     public function getThumbnail(): ?string
     {
         return $this->data['thumbnail'];
+    }
+
+    public function getShortFileName(): ?string
+    {
+        return sprintf('%s.%s', $this->options['filename'], $this->getFormat());
+    }
+
+    public function getPath(): ?string
+    {
+        return $this->options['path'];
+    }
+
+    public function getFormat(): ?string
+    {
+        return $this->options['parameters']['audio-format'];
+    }
+
+    public function getFileName(): ?string
+    {
+        return $this->getPath() . DIRECTORY_SEPARATOR . $this->getShortFileName();
     }
 }

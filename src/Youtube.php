@@ -57,7 +57,7 @@ class Youtube
 
         $videoData = json_decode($process->getOutput(), true);
 
-        return new Video($videoData);
+        return new Video($videoData, $this->options);
     }
 
     private function generateCommand(): string
