@@ -5,12 +5,15 @@ namespace Mate\Youtube;
 
 use Mate\Youtube\Parameter\AudioFormat;
 use Mate\Youtube\Parameter\AudioQuality;
+use Mate\Youtube\Parameter\EmbedThumbnail;
 use Mate\Youtube\Parameter\ExtractAudio;
 use Mate\Youtube\Parameter\NoCallHome;
+use Mate\Youtube\Parameter\NoPart;
 use Mate\Youtube\Parameter\NoWarning;
 use Mate\Youtube\Parameter\Output;
 use Mate\Youtube\Parameter\PrintJson;
 use Mate\Youtube\Parameter\Quiet;
+use Mate\Youtube\Parameter\SleepInterval;
 
 class Command
 {
