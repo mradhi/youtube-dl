@@ -66,9 +66,9 @@ class Youtube {
 			throw new \Exception( $exception->getMessage() );
 		}
 
-		unset($builder);
+		unset( $builder );
 
-		$process = new Process($command);
+		$process = new Process( $command );
 
 		$process->run();
 
@@ -94,14 +94,14 @@ class Youtube {
 		$url        = $this->getUrl();
 
 		foreach ( $parameters as $key => $value ) {
-			if (!$value) {
+			if ( ! $value ) {
 				continue;
 			}
 
 			$result[] = sprintf( '--%s', $key );
 		}
 
-		$result[] = sprintf('%s', $this->getUrl());
+		$result[] = sprintf( '%s', $this->getUrl() );
 
 		return $result;
 	}
@@ -110,10 +110,10 @@ class Youtube {
 	private function getSimulatedCommandParameters(): array
 	{
 		return [
-			'print-json'   => true,
-			'quiet'        => true,
-			'no-warning'   => true,
-			'no-call-home' => true
+			'dump-single-json' => true,
+			'quiet'            => true,
+			'no-warning'       => true,
+			'no-call-home'     => true
 		];
 	}
 
