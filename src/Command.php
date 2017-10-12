@@ -55,17 +55,20 @@ class Command
         return sprintf('%s "%s"', $preCommand, $this->url);
     }
 
-    public static function availableParameters(): array
-    {
-        return [
-            'audio-format'  => AudioFormat::class,
-            'audio-quality' => AudioQuality::class,
-            'extract-audio' => ExtractAudio::class,
-            'no-call-home'  => NoCallHome::class,
-            'no-warning'    => NoWarning::class,
-            'output'        => Output::class,
-            'print-json'    => PrintJson::class,
-            'quiet'         => Quiet::class
-        ];
-    }
+	public static function availableParameters(): array
+	{
+		return [
+			'audio-format'   => AudioFormat::class,
+			'audio-quality'  => AudioQuality::class,
+			'extract-audio'  => ExtractAudio::class,
+			'no-call-home'   => NoCallHome::class,
+			'no-warning'     => NoWarning::class,
+			'output'         => Output::class,
+			'print-json'     => PrintJson::class,
+			'quiet'          => Quiet::class,
+			'sleep-interval' => SleepInterval::class,
+			'embedThumbnail' => EmbedThumbnail::class,
+			'no-part'        => NoPart::class
+		];
+	}
 }
