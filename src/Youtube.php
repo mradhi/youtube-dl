@@ -4,76 +4,136 @@
 namespace Mate\Youtube;
 
 use Mate\Youtube\Entity\Video;
+use Symfony\Component\OptionsResolver\Exception\AccessException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
-class Youtube
-{
-    protected $options;
+class Youtube {
+	protected $options;
 
-    protected $path;
+	protected $path;
 
-    protected $filename;
+	protected $filename;
 
-    public function __construct( array $options = array() )
-    {
-        $resolver = new OptionsResolver();
-        $this->configureOptions($resolver);
+	public function __construct( array $options = array() )
+	{
+		$resolver = new OptionsResolver();
+		$this->configureOptions( $resolver );
 
-        $this->options = $resolver->resolve($options);
-    }
+		$this->options = $resolver->resolve( $options );
+	}
 
-    private function configureOptions( OptionsResolver $resolver ): void
-    {
-        $resolver->setDefaults([
-            'name'       => 'youtube-dl',
-            'url'        => null,
-            'filename'   => '',
-            'path'       => '',
-            'parameters' => [
-                'audio-format'  => 'mp3',
-                'extract-audio' => true,
-                'output'        => '/var/www/html/youtube-dl/uploads/test',
-                'audio-quality' => 6,
-                'quiet'         => true,
-                'print-json'    => true,
-                'no-warning'    => true,
-                'no-call-home'  => true
-            ]
-        ]);
-    }
+	private function configureOptions( OptionsResolver $resolver ): void
+	{
+		$resolver->setDefaults( [
+			'name'       => 'youtube-dl',
+			'url'        => null,
+			'filename'   => '',
+			'path'       => '',
+			'parameters' => [
+				'audio-format'    => 'mp3',
+				'embed-thumbnail' => true,
+				'sleep-interval'  => 2,
+				'extract-audio'   => true,
+				'output'          => '/var/www/html/youtube-dl/uploads/test',
+				'audio-quality'   => 6,
+				'quiet'           => true,
+				'print-json'      => false,
+				'no-warning'      => true,
+				'no-call-home'    => true,
+				'no-part'         => true
+			]
+		] );
+	}
 
-    public function download(): Video
-    {
-        $command = $this->generateCommand();
-        $process = new Process($command);
-        $process->run();
+	public function download( \Closure $middleware ): Video
+	{
+		$command = $this->generateCommand();
+		$builder = new ProcessBuilder( $this->generateSimulatedParameters() );
+
+		$builder->setPrefix( $this->getCommandPrefix() );
+
+		$simulatedProcess = $builder->getProcess();
+		$simulatedProcess->run();
+
+		$video = new Video( json_decode( $simulatedProcess->getOutput(), true ), $this->options );
+
+		try {
+			$middleware( $video );
+		} catch ( \Exception $exception ) {
+			throw new \Exception( $exception->getMessage() );
+		}
+
+		unset($builder);
+
+		$process = new Process($command);
+
+		$process->run();
+
+		return $video;
+	}
+
+	private function generateCommand(): string
+	{
+		$parameters = $this->getParameters();
+		$url        = $this->getUrl();
+
+		$parameters['output'] = $this->options['path'] . DIRECTORY_SEPARATOR . $this->options['filename'];
+
+		$command = new Command( $this->getCommandPrefix(), $url, $parameters );
+
+		return $command->render();
+	}
+
+	private function generateSimulatedParameters(): array
+	{
+		$result     = [];
+		$parameters = $this->getSimulatedCommandParameters();
+		$url        = $this->getUrl();
+
+		foreach ( $parameters as $key => $value ) {
+			if (!$value) {
+				continue;
+			}
+
+			$result[] = sprintf( '--%s', $key );
+		}
+
+		$result[] = sprintf('%s', $this->getUrl());
+
+		return $result;
+	}
 
 
-        if ( !$process->isSuccessful() ) {
-            throw new ProcessFailedException($process);
-        }
+	private function getSimulatedCommandParameters(): array
+	{
+		return [
+			'print-json'   => true,
+			'quiet'        => true,
+			'no-warning'   => true,
+			'no-call-home' => true
+		];
+	}
 
-        $videoData = json_decode($process->getOutput(), true);
+	public function getUrl()
+	{
+		return Helper::buildURL( $this->options['url'] );
+	}
 
-        return new Video($videoData, $this->options);
-    }
+	public function getCommandPrefix()
+	{
+		return $this->options['name'];
+	}
 
-    private function generateCommand(): string
-    {
-        $parameters = $this->options['parameters'];
-        $url        = Helper::buildURL($this->options['url']);
+	public function getParameters()
+	{
+		return $this->options['parameters'];
+	}
 
-        $parameters['output'] = $this->options['path'] . DIRECTORY_SEPARATOR . $this->options['filename'];
-
-        $command = new Command($this->options['name'], $url, $parameters);
-
-        return $command->render();
-    }
-
-    public function get( $option )
-    {
-        return $this->options[ $option ];
-    }
+	public function get( $option )
+	{
+		return $this->options[ $option ];
+	}
 }
