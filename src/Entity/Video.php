@@ -5,32 +5,6 @@ namespace Mate\Youtube\Entity;
 
 class Video
 {
-    protected $id = null;
-
-    protected $title = null;
-
-    protected $filename = null;
-
-    protected $path = null;
-
-    protected $categories = array();
-
-    protected $dislikeCount = null;
-
-    protected $likeCount = null;
-
-    protected $viewCount = null;
-
-    protected $fileSize = null;
-
-    protected $tags = array();
-
-    protected $uploader = null;
-
-    protected $uploaderId = null;
-
-    protected $thumbnail = null;
-
     protected $data = array();
 
     protected $options = array();
