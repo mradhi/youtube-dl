@@ -5,8 +5,35 @@ namespace Mate\Youtube\Entity;
 
 class Video
 {
-    protected $data    = [];
-    protected $options = [];
+    protected $id = null;
+
+    protected $title = null;
+
+    protected $filename = null;
+
+    protected $path = null;
+
+    protected $categories = array();
+
+    protected $dislikeCount = null;
+
+    protected $likeCount = null;
+
+    protected $viewCount = null;
+
+    protected $fileSize = null;
+
+    protected $tags = array();
+
+    protected $uploader = null;
+
+    protected $uploaderId = null;
+
+    protected $thumbnail = null;
+
+    protected $data = array();
+
+    protected $options = array();
 
 
     public function __construct(array $data = array(), array $options = array())
@@ -121,5 +148,10 @@ class Video
     public function getFileName(): ?string
     {
         return $this->getPath() . DIRECTORY_SEPARATOR . $this->getShortFileName();
+    }
+
+    public function getDuration(): ?int
+    {
+    	return $this->data['duration'];
     }
 }
