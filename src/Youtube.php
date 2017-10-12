@@ -102,6 +102,7 @@ class Youtube {
 		}
 
 		$result[] = sprintf( '%s', $this->getUrl() );
+		$result[] = '-s';
 
 		return $result;
 	}
