@@ -52,11 +52,11 @@ class Youtube {
 	{
 		$command = $this->generateCommand();
 		$builder = new ProcessBuilder( $this->generateSimulatedParameters() );
+		$builder->setTimeout(6000);
 
 		$builder->setPrefix( $this->getCommandPrefix() );
 
 		$simulatedProcess = $builder->getProcess();
-		$simulatedProcess->setTimeout(6000);
 		$simulatedProcess->run();
 
 		$video = new Video( json_decode( $simulatedProcess->getOutput(), true ), $this->options );
