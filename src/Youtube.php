@@ -10,132 +10,136 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
 
-class Youtube {
-	protected $options;
+class Youtube
+{
+    protected $options;
 
-	protected $path;
+    protected $path;
 
-	protected $filename;
+    protected $filename;
 
-	public function __construct( array $options = array() )
-	{
-		$resolver = new OptionsResolver();
-		$this->configureOptions( $resolver );
+    public function __construct( array $options = array() )
+    {
+        $resolver = new OptionsResolver();
+        $this->configureOptions( $resolver );
 
-		$this->options = $resolver->resolve( $options );
-	}
+        $this->options = $resolver->resolve( $options );
+    }
 
-	private function configureOptions( OptionsResolver $resolver ): void
-	{
-		$resolver->setDefaults( [
-			'name'       => 'youtube-dl',
-			'url'        => null,
-			'filename'   => '',
-			'path'       => '',
-			'parameters' => [
-				'audio-format'    => 'mp3',
-				'embed-thumbnail' => true,
-				'sleep-interval'  => 2,
-				'extract-audio'   => true,
-				'output'          => '/var/www/html/youtube-dl/uploads/test',
-				'audio-quality'   => 6,
-				'quiet'           => true,
-				'print-json'      => false,
-				'no-warning'      => true,
-				'no-call-home'    => true,
-				'no-part'         => true
-			]
-		] );
-	}
+    private function configureOptions( OptionsResolver $resolver ): void
+    {
+        $resolver->setDefaults( [
+            'name'       => 'youtube-dl',
+            'url'        => null,
+            'filename'   => '',
+            'path'       => '',
+            'parameters' => [
+                'audio-format'    => 'mp3',
+                'embed-thumbnail' => true,
+                'sleep-interval'  => 2,
+                'extract-audio'   => true,
+                'output'          => '/var/www/html/youtube-dl/uploads/test',
+                'audio-quality'   => 6,
+                'quiet'           => true,
+                'print-json'      => false,
+                'no-warning'      => true,
+                'no-call-home'    => true,
+                'no-part'         => true
+            ]
+        ] );
+    }
 
-	public function download( \Closure $middleware ): Video
-	{
-		$command = $this->generateCommand();
-		$builder = new ProcessBuilder( $this->generateSimulatedParameters() );
-		$builder->setTimeout(6000);
+    public function download( \Closure $middleware ): Video
+    {
+        $command = $this->generateCommand();
+        $builder = new ProcessBuilder( $this->generateSimulatedParameters() );
 
-		$builder->setPrefix( $this->getCommandPrefix() );
+        $builder->setPrefix( $this->getCommandPrefix() );
 
-		$simulatedProcess = $builder->getProcess();
-		$simulatedProcess->run();
+        $simulatedProcess = $builder->getProcess();
 
-		$video = new Video( json_decode( $simulatedProcess->getOutput(), true ), $this->options );
+        $simulatedProcess->setIdleTimeout( 6000 );
+        $simulatedProcess->setTimeout( 6000 );
 
-		try {
-			$middleware( $video );
-		} catch ( \Exception $exception ) {
-			throw new \Exception( $exception->getMessage() );
-		}
+        $simulatedProcess->run();
 
-		unset( $builder );
+        $video = new Video( json_decode( $simulatedProcess->getOutput(), true ), $this->options );
 
-		$process = new Process( $command );
+        try {
+            $middleware( $video );
+        } catch ( \Exception $exception ) {
+            throw new \Exception( $exception->getMessage() );
+        }
 
-		$process->run();
+        unset( $builder );
 
-		return $video;
-	}
+        $process = new Process( $command );
 
-	private function generateCommand(): string
-	{
-		$parameters = $this->getParameters();
-		$url        = $this->getUrl();
+        $process->run();
 
-		$parameters['output'] = $this->options['path'] . DIRECTORY_SEPARATOR . $this->options['filename'];
+        return $video;
+    }
 
-		$command = new Command( $this->getCommandPrefix(), $url, $parameters );
+    private function generateCommand(): string
+    {
+        $parameters = $this->getParameters();
+        $url        = $this->getUrl();
 
-		return $command->render();
-	}
+        $parameters[ 'output' ] = $this->options[ 'path' ] . DIRECTORY_SEPARATOR . $this->options[ 'filename' ];
 
-	private function generateSimulatedParameters(): array
-	{
-		$result     = [];
-		$parameters = $this->getSimulatedCommandParameters();
-		$url        = $this->getUrl();
+        $command = new Command( $this->getCommandPrefix(), $url, $parameters );
 
-		foreach ( $parameters as $key => $value ) {
-			if ( ! $value ) {
-				continue;
-			}
+        return $command->render();
+    }
 
-			$result[] = sprintf( '--%s', $key );
-		}
+    private function generateSimulatedParameters(): array
+    {
+        $result     = [];
+        $parameters = $this->getSimulatedCommandParameters();
+        $url        = $this->getUrl();
 
-		$result[] = sprintf( '%s', $this->getUrl() );
-		$result[] = '-s';
+        foreach ( $parameters as $key => $value ) {
+            if ( !$value ) {
+                continue;
+            }
 
-		return $result;
-	}
+            $result[] = sprintf( '--%s', $key );
+        }
+
+        $result[] = sprintf( '%s', $this->getUrl() );
+        $result[] = '-s';
+
+        return $result;
+    }
 
 
-	private function getSimulatedCommandParameters(): array
-	{
-		return [
-			'dump-single-json' => true,
-			'quiet'            => true,
-			'no-warning'       => true,
-			'no-call-home'     => true
-		];
-	}
+    private function getSimulatedCommandParameters(): array
+    {
+        return [
+            'dump-single-json' => true,
+            'quiet'            => true,
+            'no-warning'       => true,
+            'no-call-home'     => true
+        ];
+    }
 
-	public function getUrl()
-	{
-		return Helper::buildURL( $this->options['url'] );
-	}
+    public function getUrl()
+    {
+        return Helper::buildURL( $this->options[ 'url' ] );
+    }
 
-	public function getCommandPrefix()
-	{
-		return $this->options['name'];
-	}
+    public function getCommandPrefix()
+    {
+        return $this->options[ 'name' ];
+    }
 
-	public function getParameters()
-	{
-		return $this->options['parameters'];
-	}
+    public function getParameters()
+    {
+        return $this->options[ 'parameters' ];
+    }
 
-	public function get( $option )
-	{
-		return $this->options[ $option ];
-	}
+    public function get( $option )
+    {
+        return $this->options[ $option ];
+    }
 }
