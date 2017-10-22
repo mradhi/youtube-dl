@@ -56,6 +56,7 @@ class Youtube {
 		$builder->setPrefix( $this->getCommandPrefix() );
 
 		$simulatedProcess = $builder->getProcess();
+		$simulatedProcess->setTimeout(6000);
 		$simulatedProcess->run();
 
 		$video = new Video( json_decode( $simulatedProcess->getOutput(), true ), $this->options );
