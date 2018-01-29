@@ -75,6 +75,9 @@ class Youtube
 
         $process = new Process( $command );
 
+        $process->setIdleTimeout( 6000 );
+        $process->setTimeout( 6000 );
+        
         $process->run();
 
         return $video;
